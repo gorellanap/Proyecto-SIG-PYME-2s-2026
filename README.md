@@ -3,9 +3,9 @@ Repositorio en el que se subirá el proceso, desarrollo y más con respecto al P
 
 GRUPO INTEGRADO POR :
 Antonia Valenzuela, 
-Clemente Luoni
-Florencia Palma
-Gonzalo Orellana, 202360556-5
+Clemente Luoni,
+Florencia Palma,
+Gonzalo Orellana
 
 Profesor que imparte el ramo: José Miguel González
 
