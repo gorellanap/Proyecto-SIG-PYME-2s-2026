@@ -1,0 +1,14 @@
+Proyecto SIG
+├── README.md
+├── docs/
+│   ├── 00-caso-pyme.md
+│   ├── 01-requerimientos.md
+│   ├── 02-bpmn.md
+│   └── 03-er-preliminar.md
+├── assets/
+│   ├── bpmn-asis.png
+│   ├── bpmn-tobe.png
+│   └── er-diagram.png
+└── informe/
+    ├── Informe_Entrega1_GrupoX.pdf
+    └── Informe_Entrega1_GrupoX.docx
