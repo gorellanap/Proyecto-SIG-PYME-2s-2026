@@ -15,4 +15,4 @@
 > **Problema identificado:** *"El proceso de atención y despacho del canal digital presenta un tiempo de ciclo total de **6 días** (un **200% más lento** que el estándar de **2 días** alcanzado en el canal de supermercados y distribuidores), debido a la revisión y postergación manual en la consolidación de los pedidos web, lo que degrada la experiencia del cliente y frena la tasa de recompra digital en un **20%**."*
 
 ## 4. Objetivo del SIG Propuesto
-Implementar un módulo de consolidación y notificación automática de compras web que automatice el flujo de preparación de pedidos, reduciendo el Lead Time del canal digital de **6 a 2 días** e incrementando la tasa de recompra al **300%**.
+Implementar un módulo de consolidación y notificación automática de compras web que automatice el flujo de preparación de pedidos, reduciendo el Lead Time del canal digital de **6 a 2 días** e incrementando la tasa de recompra al **30%**.
