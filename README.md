@@ -1,10 +1,10 @@
 # Proyecto-SIG-PYME RUTA-2s-2026
 
 GRUPO INTEGRADO POR :
-Antonia Valenzuela, Rol
-Clemente Luoni, Rol
-Florencia Palma, Rol
-Gonzalo Orellana, Rol
+Antonia Valenzuela,
+Clemente Luoni, 
+Florencia Palma,
+Gonzalo Orellana
 
 LA PYME elegida para desarrollar este Proyecto es RUTA, que trata sobre la fabricación y distribución/venta de Papas Fritas, elaboradas en San Vicente de Tagua Tagua.
 ---
