@@ -11,7 +11,7 @@ LA PYME elegida para desarrollar este Proyecto es RUTA, que trata sobre la fabri
 ## 2. Resumen del Caso y Problema
 * **PYME:** 
 * **Problema de Negocio:** 
-* **Objetivo del SIG:** 
+* **Objetivo del SIG:** Implementar un módulo de consolidación y notificación automática de compras web que automatice el flujo de preparación de pedidos, reduciendo el Lead Time del canal digital de 6 a 2 días.
 ---
 ## 3. Mapa del Repositorio
 * `/docs/00-caso-pyme.md` : Ficha de acreditación, antecedentes y evidencia de contacto con la PYME.
