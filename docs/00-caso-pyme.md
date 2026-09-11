@@ -1,7 +1,7 @@
 # Sección B: Caso PYME y Problema de Negocio - Papas Fritas RUTA
 
 ## 1. Identificación de la PYME
-* **Nombre / Razón Social:** Papas Fritas RUTA
+* **Nombre / Razón Social:** Papas Fritas RUTA, 77.964.038-8
 * **Rubro:** Fabricación y distribución de papas fritas artesanales
 * **Ubicación:** San Vicente de Tagua Tagua, Región del Libertador General Bernardo O'Higgins
 * **Tamaño aproximado:** Pequeña Empresa (PYME)
