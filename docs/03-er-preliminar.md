@@ -22,7 +22,7 @@
 
 ---
 
-## 4. Stack Tecnológico Propuesto (Localhost)
+## 4. Arquitectura lógica y stack tentativo
 
 * 
 * 
