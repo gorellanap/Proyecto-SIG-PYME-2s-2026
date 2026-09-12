@@ -9,7 +9,7 @@ Gonzalo Orellana
 LA PYME elegida para desarrollar este Proyecto es RUTA, que trata sobre la fabricación y distribución/venta de Papas Fritas, elaboradas en San Vicente de Tagua Tagua.
 ---
 ## 2. Resumen del Caso y Problema
-* **PYME:** 
+* **PYME:** Ruta Snack SpA, empresa dedicada a la elaboración y comercialización de papas fritas artesanales, ubicadas en San Vicente de Tagua Tagua. Sus productos se comercializan en supermercados regionales, distribuidores regionales y la pagina web de la empresa.
 * **Problema de Negocio:** 
 * **Objetivo del SIG:** Implementar un módulo de consolidación y notificación automática de compras web que automatice el flujo de preparación de pedidos, reduciendo el Lead Time del canal digital de 6 a 2 días.
 ---
