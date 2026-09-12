@@ -16,3 +16,4 @@
 
 ## 4. Objetivo del SIG Propuesto
 Implementar un módulo de consolidación y notificación automática de compras web que automatice el flujo de preparación de pedidos, reduciendo el Lead Time del canal digital de **6 a 2 días**.
+hhhhhhhhhh
