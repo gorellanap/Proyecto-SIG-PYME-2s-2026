@@ -26,5 +26,8 @@ LA PYME elegida para desarrollar este Proyecto es RUTA, que trata sobre la fabri
 Esta primera entrega establece el levantamiento de procesos (BPMN), el modelo de base de datos preliminar y los requerimientos del sistema que servirán de arquitectura base para construir el prototipo funcional en *localhost* durante la Entrega 2.
 ---
 ## 5. Accesos y Entregables
-* **Informe Final:** (./informe/Informe_Entrega1_PapasFritasRUTA.pdf)
+* **Informe Final (PDF):** [Informe_Entrega1_PapasFritasRUTA.pdf](./informe/Informe_Entrega1_PapasFritasRUTA.pdf)
+* **Informe Editable (Word):** [Informe_Entrega1_PapasFritasRUTA.docx](./informe/Informe_Entrega1_PapasFritasRUTA.docx)
+* **Carpeta de Entregables:** [Ver carpeta /informe](./informe/)
+* **Plataforma Aula Virtual USM:** [Acceso a Aula Virtual USM](https://aula.usm.cl/) *(Entrega oficial realizada en el buzón E1 ICN-292)*
   
