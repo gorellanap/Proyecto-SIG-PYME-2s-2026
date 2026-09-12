@@ -10,7 +10,7 @@ LA PYME elegida para desarrollar este Proyecto es RUTA, que trata sobre la fabri
 ---
 ## 2. Resumen del Caso y Problema
 * **PYME:** Ruta Snack SpA, empresa dedicada a la elaboración y comercialización de papas fritas artesanales, ubicadas en San Vicente de Tagua Tagua. Sus productos se comercializan en supermercados regionales, distribuidores regionales y la pagina web de la empresa.
-* **Problema de Negocio:** 
+* **Problema de Negocio:** Los pedidos que se realizan a través de la pagian web tiene tiempo elevados entre la peparación y el despacho, con tiempos entre 5 a 7 dias, muy lejos de los otros canales que presentan aproximadamente un tiempo de 2 dias en este proceso.
 * **Objetivo del SIG:** Implementar un módulo de consolidación y notificación automática de compras web que automatice el flujo de preparación de pedidos, reduciendo el Lead Time del canal digital de 6 a 2 días.
 ---
 ## 3. Mapa del Repositorio
