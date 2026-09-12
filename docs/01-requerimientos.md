@@ -34,7 +34,8 @@
 
 ## 4. Requerimientos No Funcionales
 
-1. **RNF01:** 
-2. **RNF02:** 
-3. **RNF03:** 
-4. **RNF04:**
+1. **RNF01:** El sistema tiene que ser simple y fácil de usar.
+2. **RNF02:** La información de cada pedido tiene que estar ordenada y evitar falta de datos.
+3. **RNF03:** El SIG tiene que dejar que la información de cada pedido sea consultada fácilmente.
+4. **RNF04:** El SIG tiene que contar con una contraseña de acceso.
+5. **RNF05:** Deberá generar una copia de seguridad en base a algún periodo de tiempo o número de pedidos.
