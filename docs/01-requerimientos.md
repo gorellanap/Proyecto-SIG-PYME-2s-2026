@@ -10,25 +10,35 @@
 ## 2. Delimitación del Alcance
 
 ### Dentro del Alcance (IN)
-* Registrar y consultar los pedidos provenientes de la página web, visualizar pedidos pendientes y registrar fechas de preparación y despacho.
-* Generar notificaciones automáticas para apoyar el seguimiento y control de los pedidos
+* Registro de pedidos de la página web.
+* Consulta de todos los pedidos registrados.
+* Visualización de pedidos pendientes.
+* Visualización de cuándo se hizo el pedido.
+* Registro de la fecha de preparación.
+* Registro de la fecha de despacho.
+* Notificación para recordar el pedido.
 
 ### Fuera del Alcance (OUT)
-* No se integrarán módulos de pago, contabilidad, producción, bodega ni transporte propio.
-* El sistema finalizará su seguimiento cuando el pedido sea entregado a la empresa de transporte; no realizará seguimiento posterior.
+* Modificación o reemplazo de la página web.
+* Gestión del proceso de producción de las papas.
+* Gestión de proveedores.
+* Gestión contable y financiera.
+* Procesamiento de pagos.
+* Sistema propio de transporte.
+* Gestión de bodega.
   
 ---
 
 ## 3. Requerimientos Funcionales
 
-1. **RF01:** El sistema debe permitir registrar los pedidos realizados mediante la página web, almacenando sus datos esenciales.
-2. **RF02:** El sistema debe permitir actualizar el estado de un pedido.
-3. **RF03:** El sistema debe calcular automáticamente cuántos días lleva pendiente un pedido desde su fecha de ingreso.
-4. **RF04:** El sistema debe identificar los pedidos que superen un número definido de días pendientes.
-5. **RF05:** El sistema debe permitir filtrar los pedidos según su estado.
-6. **RF06:** El sistema debe mostrar un resumen con la cantidad de pedidos pendientes, preparados y despachados.
-7. **RF07:** El sistema debe permitir generar un reporte simple con los pedidos y sus tiempos de preparación.
-8. **RF08:** El sistema podrá permitir en el futuro exportar los pedidos a un archivo Excel o CSV.
+1. **RF01:** El SIG tiene que permitir registrar los pedidos realizados por la página web, incluyendo los datos esenciales del mismo (fecha, cantidad, etc.).
+2. **RF02:** El SIG debe permitir actualizar el estado de cada uno de los pedidos, mostrando si esta entregado, pendiente, despechado, etc.
+3. **RF03:** El SIG tiene que calcular los días que lleva pendiente un pedido.
+4. **RF04:** El SIG debe identificar los pedidos que superen el tiempo pensado entre preparación y despacho.
+5. **RF05:** El SIG tiene que lograr filtrar lo pedidos según el estado en el que se encuentren.
+6. **RF06:** El SIG debe mostrar un resumen de los pedidos, mostrando la cantidad de pedidos entregados, pendientes, etc.
+7. **RF07:** El SIG puede generar un reporte con los pedidos y los tiempos de estos en ser entregados.
+8. **RF08:** El SIG no seguirá el estado del pedido una vez se despache, es decir, sea entregado a transporte.
 
 ---
 
