@@ -10,7 +10,7 @@
 
 ![BPMN TO-BE Final](../assets/bpmn-tobe-final.png)
 
-* **Explicación del flujo:** *(Completar con el recorrido de punta a punta).*
+* **Explicación del flujo:** El proceso comienza con la recepción y revisión del pedido. Luego se identifica el canal de venta. Para los pedidos web, el sistema registra y consolida los pedidos y notifica al responsable para que inicie la preparación. Después se gestiona el despacho y se entrega el pedido al transporte. Los pedidos de supermercados y distribuidores regionales siguen una ruta común de preparación y despacho. En el canal web, la meta es que transcurran como máximo dos días desde la compra hasta la entrega al transporte.
 
 ---
 
