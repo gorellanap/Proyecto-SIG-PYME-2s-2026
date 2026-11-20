@@ -15,7 +15,7 @@
 ---
 
 ## 2. Cambios respecto al BPMN de la Entrega 1
-* *(Listar qué se modificó en el diagrama y por qué).*
+En el BPMN de la Entrega 1, la preparación del pedido aparecía antes de identificar el canal de venta. En la versión final, la decisión se trasladó inmediatamente después de la revisión del pedido. Esto permitió ubicar el registro, la consolidación y la notificación de los pedidos web antes de la preparación, de modo que el aviso indique al responsable cuándo iniciar su trabajo. Los canales de supermercado y distribuidor regionales se agruparon porque compartían el mismo plazo y destino de despacho. Además, el temporizador de dos días del canal digital se reemplazó por una anotación que explicita la meta y el tramo en que se mide. 
 
 ---
 
