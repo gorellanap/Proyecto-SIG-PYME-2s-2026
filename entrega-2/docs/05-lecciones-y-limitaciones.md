@@ -1,27 +1,20 @@
-# Lecciones Aprendidas y Limitaciones del Prototipo
-
-> **Responsable:** Equipo completo  
-> **Corresponde a:** Secciones 7 y 8 del Informe E2
-
+# Lecciones Aprendidas y Limitaciones del Prototipo — Ruta Snack SpA
 ---
-
 ## 1. Lecciones Aprendidas (Paso de E1 a E2)
-* *(Completar: ej. importancia de normalizar a 3FN antes de escribir DDL para evitar recalcular totales o duplicar regiones).*
-* *(Completar: utilidad de congelar `precio_unitario` en `detalle_pedido` para proteger reportes históricos ante alzas de precios).*
+
+* **Alineación entre procesos, datos y automatización:** Al pasar del diseño conceptual (Entrega 1) a la implementación técnica (Entrega 2), se comprobó que cada tarea del diagrama BPMN *to-be* debe mapearse exactamente con las tablas y estados de la base de datos. Trasladar la identificación del canal web antes de la preparación permitió que los nodos de **n8n** y las tablas en **MySQL 8** operaran como un único sistema integrado.
+* **Importancia práctica de la Tercera Forma Normal (3FN):** Eliminar atributos derivados como `monto_total` y transitivos como `region`, además de congelar `precio_unitario` dentro de `detalle_pedido`, evitó inconsistencias contables al simular alzas de precios entre septiembre ($2.790) y octubre ($2.990).
+* **Control de calidad desde el motor de base de datos:** Definir restricciones `CHECK`, `UNIQUE` y llaves foráneas (`FOREIGN KEY`) en `schema.sql` protege la integridad de la operación mucho mejor que depender únicamente de revisiones manuales o validaciones externas.
+* **Coherencia de nomenclatura entre artefactos:** Mantener nombres idénticos de tablas, atributos y estados entre el diagrama ER (`dbdiagram.io`), los scripts SQL (`schema.sql`, `seed.sql`, `consultas.sql`) y los nodos de `n8n` redujo errores de integración y facilitó el trabajo colaborativo en GitHub.
 
 ---
 
-## 2. Limitaciones Actuales
-* **Datos sintéticos:** Los registros de `seed.sql` simulan fielmente la operación levantada en E1, pero no corresponden a transacciones productivas en vivo.
-* **Medición post-implementación:** El impacto real en la reducción de 6 a $\le 2$ días y el alza en la tasa de recompra requiere seguimiento tras poner el sistema en marcha.
-* **Actualización de estados:** El paso a `'En preparacion'` y el registro de `codigo_seguimiento` dependen de que el responsable actualice el estado oportunamente.
-En la automatización con n8n, la notificación por correo al responsable de preparación quedó armada en los flujos, pero desactivada, porque no alcanzamos a conectar una cuenta de Gmail. Para hacerlo, Google pide crear un proyecto en Google Cloud con credenciales propias. Por eso, en esta versión el aviso se ve en la respuesta del sistema, que entrega la fecha límite de despacho, y en la lista de pedidos atrasados que genera el flujo 3, pero no llega como correo.
-* **Alcance del seguimiento de pedidos web.** El BPMN cubre desde la compra hasta la entrega del pedido al transportista. El traslado y la entrega al cliente quedan fuera del tramo modelado, por lo que la meta de dos días mide el tiempo hasta que Ruta entrega el pedido al transporte.
-* **Tratamiento del plazo en el diagrama.** En la versión final, el plazo de dos días se indica mediante una anotación. El diagrama muestra cuándo empieza y termina la medición, mientras que la detección de los pedidos que superan el plazo queda a cargo del flujo de seguimiento.
-* **Nivel de detalle de los otros canales.** Los pedidos de supermercados y distribuidores regionales se agruparon en una sola rama porque compartían el plazo y el destino de despacho. Con ese nivel de detalle, el diagrama permite distinguir la gestión de los pedidos web, pero no analizar por separado las actividades de supermercados y distribuidores.
+## 2. Limitaciones del Prototipo
 
-Además, la página web de Ruta no está conectada a n8n, porque modificarla estaba fuera del alcance del proyecto. En las pruebas, los pedidos se enviaron manualmente al sistema, simulando lo que haría la web.
-
-Otra limitación es que n8n está instalado en un solo computador. Si ese computador está apagado, los pedidos no se registran y no se revisan los atrasos. Para usarlo en la empresa habría que dejarlo en un equipo que esté siempre encendido.
-
-Por último, como los datos de prueba son ficticios, todavía no podemos medir si el sistema realmente baja el tiempo de despacho de 6 a 2 días. Eso solo se podría comprobar usándolo con pedidos reales durante algunas semanas.
+* **Notificación por correo desactivada en entorno local:** En el flujo de ingreso de n8n, el nodo de Gmail para avisar al responsable de preparación quedó configurado pero desactivado, ya que Google exige crear un proyecto en Google Cloud con credenciales OAuth propias. En esta versión, el aviso se visualiza en la respuesta del sistema (con la fecha límite de despacho) y en el reporte programado de atrasos del Flujo 3.
+* **Sin integración directa con el sitio web (`rutasnack.cl`):** Modificar la tienda web de la PYME estaba fuera del alcance del proyecto, por lo que en las pruebas los pedidos se enviaron manualmente al Webhook de n8n simulando el tráfico real.
+* **Ejecución en `localhost`:** Tanto MySQL como n8n operan de forma local en un computador. Si dicho equipo se encuentra apagado, no se registran nuevos pedidos ni se ejecutan las alertas programadas; para pasar a producción se requiere desplegarlo en un servidor o equipo con disponibilidad continua.
+* **Uso de datos sintéticos:** Los 20 clientes y 25 pedidos cargados en `seed.sql` fueron construidos a partir de los tiempos y parámetros reales levantados en la Entrega 1, pero aún falta desplegar el sistema con transacciones reales durante varias semanas para comprobar la reducción efectiva de 6 a $\le 2$ días.
+* **Alcance medido hasta la entrega al transporte:** Tanto el diagrama BPMN como el KPI principal miden el tiempo interno desde la compra hasta la entrega del paquete al transportista, dejando fuera del alcance el tiempo de traslado final hacia el domicilio del cliente.
+* **Sin control de inventario en bodega ni flujo de excepciones:** Al quedar el control de stock fuera del alcance en la E1, el sistema asume disponibilidad de bolsas terminadas y no contempla estados para pedidos cancelados o modificados tras la compra.
+* **KPIs solo en SQL y dependencia del registro en bodega:** Obtener los indicadores históricos requiere ejecutar consultas en MySQL Workbench (sin una capa visual de BI) y la precisión del desglose de horas depende de que el operario registre oportunamente cada cambio de etapa en el formulario de bodega.
