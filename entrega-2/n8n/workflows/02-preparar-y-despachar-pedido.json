@@ -1,0 +1,580 @@
+{
+  "id": "RUTAWF0000000002",
+  "name": "RUTA · 02 Preparar pedido y entregar al transporte",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "content": "Flujo 2 - Preparar pedido y entregar al transporte\nBPMN: Preparar pedido > Gestionar despacho > Entregar pedido al transporte",
+        "width": 420,
+        "height": 130,
+        "color": 7
+      },
+      "id": "585e6a1a-667e-5c82-8dd4-ae52258a8802",
+      "name": "Nota",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        -460
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "basicAuth",
+        "formTitle": "Ruta · Actualizar pedido web",
+        "formDescription": "Registre cuándo empieza a preparar un pedido y cuándo lo entrega al transporte.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "N° de pedido",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Nueva etapa",
+              "fieldType": "dropdown",
+              "requiredField": true,
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Preparar pedido (En preparación)"
+                  },
+                  {
+                    "option": "Entregado al transporte (Despachado)"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Empresa de transporte",
+              "placeholder": "Obligatorio al entregar al transporte"
+            },
+            {
+              "fieldLabel": "Código de seguimiento",
+              "placeholder": "Opcional"
+            }
+          ]
+        },
+        "options": {
+          "appendAttribution": false,
+          "path": "ruta-bodega"
+        }
+      },
+      "id": "b5c85737-af4b-5b43-8e83-cd18efad9442",
+      "name": "Formulario de bodega",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -460,
+        0
+      ],
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "RUTABODEGA000001",
+          "name": "Acceso formulario bodega"
+        }
+      },
+      "webhookId": "e1325142-96c7-5956-87bf-6b35e898346f"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT id_pedido, estado_pedido FROM pedido WHERE id_pedido = {{ Math.trunc(Number($('Formulario de bodega').first().json['N° de pedido'])) || 0 }};",
+        "options": {}
+      },
+      "id": "3ed757f4-1157-5a5d-9f90-e39c89400b9a",
+      "name": "Consultar pedido",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        -240,
+        0
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "RUTAMYSQL0000001",
+          "name": "MySQL ruta (n8n_ruta)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3e06cbae-8f2b-5b91-8799-0680f7206596",
+              "leftValue": "={{ ['Pendiente', 'En preparacion'].includes($json.estado_pedido) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5c103e8d-2fb3-5746-9874-dd5c1cc2910a",
+      "name": "¿Pedido sin despachar?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -20,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "No se pudo actualizar",
+        "completionMessage": "={{ $json.estado_pedido ? 'El pedido ya fue entregado al transporte. El SIG no sigue el pedido después del despacho (RF08).' : 'No existe un pedido con ese número.' }}",
+        "options": {}
+      },
+      "id": "4351b5d0-930b-53d8-a91e-5ce587e6d937",
+      "name": "Informar pedido no válido",
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [
+        200,
+        220
+      ],
+      "webhookId": "139f9c7a-3cf3-54d1-8911-b9c3f74b173f"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "12df5674-7d10-58d6-af1f-df8a4a37d81a",
+                    "leftValue": "={{ $('Formulario de bodega').first().json['Nueva etapa'] }}",
+                    "rightValue": "Preparar pedido (En preparación)",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Preparar pedido (En preparación)"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "8c920a09-b2ff-5223-9c6c-87dc7a275842",
+                    "leftValue": "={{ $('Formulario de bodega').first().json['Nueva etapa'] }}",
+                    "rightValue": "Entregado al transporte (Despachado)",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Entregado al transporte (Despachado)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f1c2ba36-f970-57df-a6d3-f063ca384606",
+      "name": "¿Qué etapa?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        200,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO despacho (id_pedido, fecha_preparacion)\nVALUES ({{ Math.trunc(Number($('Formulario de bodega').first().json['N° de pedido'])) || 0 }}, NOW()) AS nuevo\nON DUPLICATE KEY UPDATE fecha_preparacion = COALESCE(despacho.fecha_preparacion, nuevo.fecha_preparacion);",
+        "options": {}
+      },
+      "id": "7433973b-26fb-5c23-836a-087ca321c207",
+      "name": "Preparar pedido",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        460,
+        -300
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "RUTAMYSQL0000001",
+          "name": "MySQL ruta (n8n_ruta)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=UPDATE pedido SET estado_pedido = 'En preparacion' WHERE id_pedido = {{ Math.trunc(Number($('Formulario de bodega').first().json['N° de pedido'])) || 0 }};",
+        "options": {}
+      },
+      "id": "f1866eb3-227e-52cc-a760-e032f89a4865",
+      "name": "Cambiar estado a En preparacion",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        680,
+        -300
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "RUTAMYSQL0000001",
+          "name": "MySQL ruta (n8n_ruta)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "22103118-44e4-51a4-983b-9f5b91622c28",
+              "leftValue": "={{ String($('Formulario de bodega').first().json['Empresa de transporte'] ?? '').trim() !== '' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "8d8ec04f-799f-5a1d-a14f-ce1a32fe8a8f",
+      "name": "¿Indicó empresa de transporte?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        460,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Falta un dato",
+        "completionMessage": "Para entregar el pedido al transporte debe indicar la empresa de transporte.",
+        "options": {}
+      },
+      "id": "c42462a8-63ec-54f1-8be5-d2b8d4fd90b3",
+      "name": "Pedir empresa de transporte",
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [
+        680,
+        240
+      ],
+      "webhookId": "24cce92a-a1ee-51b3-b84d-37ed9ec5f81a"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const sqlTexto = (v) => {\n  const t = String(v ?? '').trim();\n  return t === '' ? 'NULL' : \"'\" + t.replace(/\\\\/g, '\\\\\\\\').replace(/'/g, \"\\\\'\") + \"'\";\n};\nconst f = $('Formulario de bodega').first().json;\nreturn {\n  json: {\n    empresa_transporte: sqlTexto(f['Empresa de transporte']),\n    codigo_seguimiento: sqlTexto(f['Código de seguimiento']),\n  },\n};\n"
+      },
+      "id": "3b2ff382-6b19-52d3-b841-b6cee8b19fa0",
+      "name": "Gestionar despacho",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO despacho (id_pedido, fecha_preparacion, fecha_entrega_transporte, empresa_transporte, codigo_seguimiento)\nVALUES ({{ Math.trunc(Number($('Formulario de bodega').first().json['N° de pedido'])) || 0 }}, NOW(), NOW(), {{ $json.empresa_transporte }}, {{ $json.codigo_seguimiento }}) AS nuevo\nON DUPLICATE KEY UPDATE\n  fecha_preparacion = COALESCE(despacho.fecha_preparacion, nuevo.fecha_preparacion),\n  fecha_entrega_transporte = nuevo.fecha_entrega_transporte,\n  empresa_transporte = nuevo.empresa_transporte,\n  codigo_seguimiento = nuevo.codigo_seguimiento;",
+        "options": {}
+      },
+      "id": "63756e74-be12-56d9-9337-9d1d7d15cbfe",
+      "name": "Entregar pedido al transporte",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        900,
+        0
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "RUTAMYSQL0000001",
+          "name": "MySQL ruta (n8n_ruta)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=UPDATE pedido SET estado_pedido = 'Despachado' WHERE id_pedido = {{ Math.trunc(Number($('Formulario de bodega').first().json['N° de pedido'])) || 0 }};",
+        "options": {}
+      },
+      "id": "7a5ac4f5-452a-500e-bc58-70a0e1e32607",
+      "name": "Cambiar estado a Despachado",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        1120,
+        0
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "RUTAMYSQL0000001",
+          "name": "MySQL ruta (n8n_ruta)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT p.id_pedido,\n       p.estado_pedido,\n       ROUND(TIMESTAMPDIFF(HOUR, p.fecha_compra, COALESCE(d.fecha_entrega_transporte, NOW())) / 24.0, 1) AS dias_desde_compra,\n       TIMESTAMPDIFF(HOUR, p.fecha_compra, COALESCE(d.fecha_entrega_transporte, NOW())) <= 48 AS dentro_de_meta\nFROM pedido p\nLEFT JOIN despacho d ON d.id_pedido = p.id_pedido\nWHERE p.id_pedido = {{ Math.trunc(Number($('Formulario de bodega').first().json['N° de pedido'])) || 0 }};",
+        "options": {}
+      },
+      "id": "a4e2498c-80c2-59fc-851e-a80716821cd8",
+      "name": "Calcular tiempo de ciclo",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        1360,
+        -150
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "RUTAMYSQL0000001",
+          "name": "MySQL ruta (n8n_ruta)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "=Pedido #{{ $json.id_pedido }}: {{ $json.estado_pedido }}",
+        "completionMessage": "=Han pasado {{ $json.dias_desde_compra }} días desde la compra ({{ Number($json.dentro_de_meta) === 1 ? 'dentro' : 'FUERA' }} de la meta de 2 días).",
+        "options": {}
+      },
+      "id": "a9b097c3-e710-520b-b59d-57e838777a1f",
+      "name": "Mostrar resultado",
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [
+        1580,
+        -150
+      ],
+      "webhookId": "1a2c9897-cf9f-58ba-9f22-d76962236d26"
+    }
+  ],
+  "connections": {
+    "Formulario de bodega": {
+      "main": [
+        [
+          {
+            "node": "Consultar pedido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultar pedido": {
+      "main": [
+        [
+          {
+            "node": "¿Pedido sin despachar?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Pedido sin despachar?": {
+      "main": [
+        [
+          {
+            "node": "¿Qué etapa?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Informar pedido no válido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Qué etapa?": {
+      "main": [
+        [
+          {
+            "node": "Preparar pedido",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "¿Indicó empresa de transporte?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar pedido": {
+      "main": [
+        [
+          {
+            "node": "Cambiar estado a En preparacion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cambiar estado a En preparacion": {
+      "main": [
+        [
+          {
+            "node": "Calcular tiempo de ciclo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Indicó empresa de transporte?": {
+      "main": [
+        [
+          {
+            "node": "Gestionar despacho",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Pedir empresa de transporte",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gestionar despacho": {
+      "main": [
+        [
+          {
+            "node": "Entregar pedido al transporte",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Entregar pedido al transporte": {
+      "main": [
+        [
+          {
+            "node": "Cambiar estado a Despachado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cambiar estado a Despachado": {
+      "main": [
+        [
+          {
+            "node": "Calcular tiempo de ciclo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calcular tiempo de ciclo": {
+      "main": [
+        [
+          {
+            "node": "Mostrar resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Santiago",
+    "saveManualExecutions": true
+  },
+  "pinData": {},
+  "tags": []
+}

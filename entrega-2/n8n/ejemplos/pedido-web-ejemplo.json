@@ -1,0 +1,15 @@
+{
+  "fecha_compra": "2026-11-19T10:15:00-03:00",
+  "cliente": {
+    "rut": "12.345.678-5",
+    "nombre": "Cliente de Prueba",
+    "telefono": "+56 9 1111 2222",
+    "email": "cliente.prueba@example.com",
+    "direccion_despacho": "Av. Ejemplo 123, depto 45",
+    "comuna": "Providencia"
+  },
+  "items": [
+    { "id_producto": 1, "cantidad": 2 },
+    { "id_producto": 3, "cantidad": 1 }
+  ]
+}

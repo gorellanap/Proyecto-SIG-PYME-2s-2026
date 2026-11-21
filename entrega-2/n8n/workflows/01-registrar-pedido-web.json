@@ -1,0 +1,627 @@
+{
+  "id": "RUTAWF0000000001",
+  "name": "RUTA · 01 Registrar y consolidar pedidos web",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "content": "Flujo 1 - Registrar y consolidar pedidos web\nBPMN: Recibir solicitud > Revisar pedido > Registrar y consolidar pedidos web > Notificar al responsable de preparación",
+        "width": 420,
+        "height": 130,
+        "color": 7
+      },
+      "id": "3a26addc-b5f1-5e51-9933-1f740c33de78",
+      "name": "Nota",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -500,
+        -330
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ruta/pedido-web",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "0b3c6cc0-6803-5846-bbd1-f0eaca0cafd0",
+      "name": "Recibir solicitud",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -460,
+        0
+      ],
+      "webhookId": "700f082d-82c5-5a4f-855e-8c2c1b7034e2"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const body = $json.body ?? {};\nconst c = body.cliente ?? {};\nconst errores = [];\nconst texto = (v) => (v === undefined || v === null) ? '' : String(v).trim();\n\nconst sqlTexto = (v) => \"'\" + String(v).replace(/\\\\/g, '\\\\\\\\').replace(/'/g, \"\\\\'\") + \"'\";\n\nconst limpio = texto(c.rut).replace(/[.\\s]/g, '').toUpperCase();\nconst m = /^(\\d{7,8})-([\\dK])$/.exec(limpio);\nlet rut = '';\nif (m) {\n  let suma = 0;\n  let mult = 2;\n  for (let i = m[1].length - 1; i >= 0; i--) {\n    suma += Number(m[1][i]) * mult;\n    mult = mult === 7 ? 2 : mult + 1;\n  }\n  const r = 11 - (suma % 11);\n  const dv = r === 11 ? '0' : r === 10 ? 'K' : String(r);\n  if (dv === m[2]) rut = m[1] + '-' + dv;\n}\nif (!rut) errores.push('RUT del cliente inválido');\n\nconst cliente = {\n  rut,\n  nombre: texto(c.nombre),\n  telefono: texto(c.telefono),\n  email: texto(c.email).toLowerCase(),\n  direccion_despacho: texto(c.direccion_despacho),\n  comuna: texto(c.comuna),\n};\nif (!cliente.nombre) errores.push('Falta el nombre del cliente');\nif (!cliente.telefono) errores.push('Falta el teléfono del cliente');\nif (!cliente.direccion_despacho) errores.push('Falta la dirección de despacho');\nif (!cliente.comuna) errores.push('Falta la comuna');\nif (!/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(cliente.email)) errores.push('Email inválido');\n\nconst fecha = body.fecha_compra ? DateTime.fromISO(String(body.fecha_compra), { setZone: true }) : DateTime.now();\nif (!fecha.isValid) errores.push('fecha_compra no tiene un formato de fecha válido');\nconst fecha_compra = fecha.isValid ? fecha.setZone('America/Santiago').toFormat('yyyy-MM-dd HH:mm:ss') : '';\n\nconst lista = Array.isArray(body.items) ? body.items : [];\nif (lista.length === 0) errores.push('El pedido no trae productos');\nconst cantidades = {};\nfor (const it of lista) {\n  const id = Number(it.id_producto);\n  const cant = Number(it.cantidad);\n  if (!Number.isInteger(id) || id <= 0 || !Number.isInteger(cant) || cant <= 0) {\n    errores.push('Cada producto necesita id_producto y cantidad enteros positivos');\n    break;\n  }\n  cantidades[id] = (cantidades[id] ?? 0) + cant;\n}\nconst items = Object.keys(cantidades).map((id) => ({ id_producto: Number(id), cantidad: cantidades[id] }));\n\nreturn {\n  json: {\n    valido: errores.length === 0,\n    errores,\n    cliente,\n    fecha_compra,\n    items,\n    sql: {\n      rut: sqlTexto(cliente.rut),\n      nombre: sqlTexto(cliente.nombre),\n      telefono: sqlTexto(cliente.telefono),\n      email: sqlTexto(cliente.email),\n      direccion_despacho: sqlTexto(cliente.direccion_despacho),\n      comuna: sqlTexto(cliente.comuna),\n      fecha_compra: sqlTexto(fecha_compra),\n      ids_productos: items.map((i) => i.id_producto).join(', '),\n      cantidad_por_producto: items.map((i) => 'WHEN ' + i.id_producto + ' THEN ' + i.cantidad).join(' '),\n    },\n  },\n};\n"
+      },
+      "id": "fba13043-8f59-538e-bedc-3ea25dc5e634",
+      "name": "Revisar pedido",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "59534432-a1d1-5c21-b1da-90218af2f640",
+              "leftValue": "={{ $json.valido }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b9b58e6e-dcee-5f46-add3-b10afbcaa15d",
+      "name": "¿Datos completos?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -20,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, errores: $json.errores }) }}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "d385831d-120c-5ad1-999e-408c755d47f5",
+      "name": "Rechazar pedido incompleto",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        200,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT COUNT(*) AS encontrados\nFROM producto\nWHERE id_producto IN ({{ $('Revisar pedido').first().json.sql.ids_productos }});",
+        "options": {}
+      },
+      "id": "496464e1-e945-57c3-95c2-9fed36066db6",
+      "name": "Consultar productos del pedido",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        200,
+        0
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "RUTAMYSQL0000001",
+          "name": "MySQL ruta (n8n_ruta)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "80718d26-e76f-5666-8dba-14b0b3b484f1",
+              "leftValue": "={{ Number($json.encontrados) === $('Revisar pedido').first().json.items.length }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "761c8c8b-a0a2-584e-a24a-dcea3adbd820",
+      "name": "¿Productos existen?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        420,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, errores: ['Algún id_producto no existe en el catálogo'] }) }}",
+        "options": {
+          "responseCode": 422
+        }
+      },
+      "id": "660f423a-32fb-54ae-8f48-31fd04795da8",
+      "name": "Rechazar producto inexistente",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        640,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO cliente (rut, nombre, telefono, email, direccion_despacho, comuna)\nVALUES ({{ $('Revisar pedido').first().json.sql.rut }}, {{ $('Revisar pedido').first().json.sql.nombre }}, {{ $('Revisar pedido').first().json.sql.telefono }},\n        {{ $('Revisar pedido').first().json.sql.email }}, {{ $('Revisar pedido').first().json.sql.direccion_despacho }}, {{ $('Revisar pedido').first().json.sql.comuna }}) AS nuevo\nON DUPLICATE KEY UPDATE\n  nombre = nuevo.nombre,\n  telefono = nuevo.telefono,\n  email = nuevo.email,\n  direccion_despacho = nuevo.direccion_despacho,\n  comuna = nuevo.comuna;",
+        "options": {}
+      },
+      "id": "02c6c25d-2711-5ea8-8389-5a52153dae70",
+      "name": "Guardar cliente",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        640,
+        0
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "RUTAMYSQL0000001",
+          "name": "MySQL ruta (n8n_ruta)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT c.id_cliente,\n       (SELECT COUNT(*) FROM pedido p\n         WHERE p.id_cliente = c.id_cliente\n           AND p.fecha_compra = {{ $('Revisar pedido').first().json.sql.fecha_compra }}) AS ya_existe\nFROM cliente c\nWHERE c.rut = {{ $('Revisar pedido').first().json.sql.rut }};",
+        "options": {}
+      },
+      "id": "35aa7b67-8a75-59e5-b97f-5711703d9fb6",
+      "name": "Buscar pedido duplicado",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        860,
+        0
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "RUTAMYSQL0000001",
+          "name": "MySQL ruta (n8n_ruta)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0ce72f1c-4bf8-5953-82c4-23d2a5fbaab7",
+              "leftValue": "={{ Number($json.ya_existe) > 0 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b0acbaa7-c439-5cfe-97ef-869054ef322e",
+      "name": "¿Pedido ya registrado?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1080,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, mensaje: 'El pedido ya estaba registrado; no se duplicó' }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "b44d4d36-ec58-545b-bd63-095577417271",
+      "name": "Informar pedido ya registrado",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1300,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO pedido (id_cliente, fecha_compra, estado_pedido)\nVALUES ({{ $('Buscar pedido duplicado').first().json.id_cliente }}, {{ $('Revisar pedido').first().json.sql.fecha_compra }}, 'Pendiente');",
+        "options": {}
+      },
+      "id": "51d2cc63-fab5-5766-82c2-ee0894f55bbc",
+      "name": "Registrar pedido web",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        -240,
+        420
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "RUTAMYSQL0000001",
+          "name": "MySQL ruta (n8n_ruta)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT MAX(id_pedido) AS id_pedido\nFROM pedido\nWHERE id_cliente = {{ $('Buscar pedido duplicado').first().json.id_cliente }}\n  AND fecha_compra = {{ $('Revisar pedido').first().json.sql.fecha_compra }};",
+        "options": {}
+      },
+      "id": "7ea5cd6c-b6c2-51f9-afc2-6565fb618773",
+      "name": "Obtener número de pedido",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        -20,
+        420
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "RUTAMYSQL0000001",
+          "name": "MySQL ruta (n8n_ruta)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad, precio_unitario)\nSELECT {{ $('Obtener número de pedido').first().json.id_pedido }},\n       id_producto,\n       CASE id_producto {{ $('Revisar pedido').first().json.sql.cantidad_por_producto }} END,\n       precio_lista\nFROM producto\nWHERE id_producto IN ({{ $('Revisar pedido').first().json.sql.ids_productos }});",
+        "options": {}
+      },
+      "id": "7201bc26-b702-5951-a4ae-af8c444ea817",
+      "name": "Consolidar productos del pedido",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        200,
+        420
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "RUTAMYSQL0000001",
+          "name": "MySQL ruta (n8n_ruta)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO despacho (id_pedido) VALUES ({{ $('Obtener número de pedido').first().json.id_pedido }});",
+        "options": {}
+      },
+      "id": "f80ccd74-d4dd-5c68-9ff7-4f0b4bd3e5c4",
+      "name": "Abrir registro de despacho",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        420,
+        420
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "RUTAMYSQL0000001",
+          "name": "MySQL ruta (n8n_ruta)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT p.id_pedido,\n       p.estado_pedido,\n       DATE_FORMAT(p.fecha_compra, '%d-%m-%Y %H:%i') AS fecha_compra,\n       DATE_FORMAT(p.fecha_compra + INTERVAL 2 DAY, '%d-%m-%Y %H:%i') AS plazo_despacho,\n       GROUP_CONCAT(CONCAT(dp.cantidad, ' x ', pr.nombre_variedad) SEPARATOR '<br>') AS productos,\n       SUM(dp.cantidad * dp.precio_unitario) AS total\nFROM pedido p\nJOIN detalle_pedido dp ON dp.id_pedido = p.id_pedido\nJOIN producto pr ON pr.id_producto = dp.id_producto\nWHERE p.id_pedido = {{ $('Obtener número de pedido').first().json.id_pedido }}\nGROUP BY p.id_pedido, p.estado_pedido, p.fecha_compra;",
+        "options": {}
+      },
+      "id": "c0c08172-2071-5db1-979d-57f74ca2c8e7",
+      "name": "Consultar resumen del pedido",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        640,
+        420
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "RUTAMYSQL0000001",
+          "name": "MySQL ruta (n8n_ruta)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, id_pedido: $json.id_pedido, estado: $json.estado_pedido, total: Number($json.total), plazo_despacho: $json.plazo_despacho }) }}",
+        "options": {
+          "responseCode": 201
+        }
+      },
+      "id": "361aa395-3138-501b-b51b-f577b9c7d695",
+      "name": "Confirmar recepción del pedido",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        860,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "responsable.preparacion@example.com",
+        "subject": "=Nuevo pedido web #{{ $json.id_pedido }} · entregar al transporte antes del {{ $json.plazo_despacho }}",
+        "emailType": "html",
+        "message": "=<h2>Nuevo pedido web #{{ $json.id_pedido }}</h2>\n<p><b>Entregar al transporte antes del {{ $json.plazo_despacho }}</b> (meta del canal digital: 2 días desde la compra).</p>\n<p>Fecha de compra: {{ $json.fecha_compra }}<br>\nCliente: {{ $('Revisar pedido').first().json.cliente.nombre }} · {{ $('Revisar pedido').first().json.cliente.telefono }}<br>\nDirección: {{ $('Revisar pedido').first().json.cliente.direccion_despacho }}, {{ $('Revisar pedido').first().json.cliente.comuna }}<br>\nProductos:<br>{{ $json.productos }}<br>\nTotal: ${{ Number($json.total).toLocaleString('es-CL') }}</p>\n<p>Al empezar a prepararlo y al entregarlo al transporte, registre la etapa en el formulario de bodega.</p>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "634dbe6d-a28a-5a74-8946-e650c424c99d",
+      "name": "Notificar al responsable de preparación",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1080,
+        420
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "disabled": true
+    }
+  ],
+  "connections": {
+    "Recibir solicitud": {
+      "main": [
+        [
+          {
+            "node": "Revisar pedido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Revisar pedido": {
+      "main": [
+        [
+          {
+            "node": "¿Datos completos?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Datos completos?": {
+      "main": [
+        [
+          {
+            "node": "Consultar productos del pedido",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Rechazar pedido incompleto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultar productos del pedido": {
+      "main": [
+        [
+          {
+            "node": "¿Productos existen?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Productos existen?": {
+      "main": [
+        [
+          {
+            "node": "Guardar cliente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Rechazar producto inexistente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar cliente": {
+      "main": [
+        [
+          {
+            "node": "Buscar pedido duplicado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar pedido duplicado": {
+      "main": [
+        [
+          {
+            "node": "¿Pedido ya registrado?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Pedido ya registrado?": {
+      "main": [
+        [
+          {
+            "node": "Informar pedido ya registrado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Registrar pedido web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar pedido web": {
+      "main": [
+        [
+          {
+            "node": "Obtener número de pedido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener número de pedido": {
+      "main": [
+        [
+          {
+            "node": "Consolidar productos del pedido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consolidar productos del pedido": {
+      "main": [
+        [
+          {
+            "node": "Abrir registro de despacho",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Abrir registro de despacho": {
+      "main": [
+        [
+          {
+            "node": "Consultar resumen del pedido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultar resumen del pedido": {
+      "main": [
+        [
+          {
+            "node": "Confirmar recepción del pedido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirmar recepción del pedido": {
+      "main": [
+        [
+          {
+            "node": "Notificar al responsable de preparación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Santiago",
+    "saveManualExecutions": true
+  },
+  "pinData": {},
+  "tags": []
+}
