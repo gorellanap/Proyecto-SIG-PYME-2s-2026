@@ -1,6 +1,5 @@
 # Lecciones Aprendidas y Limitaciones del Prototipo
-
-> **Responsable:** Equipo completo  
+ 
 > **Corresponde a:** Secciones 7 y 8 del Informe E2
 
 ---
