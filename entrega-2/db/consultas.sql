@@ -11,7 +11,7 @@
 USE ruta;
 
 -- ============================================================
---  CONSULTAS  (las 3 primeras son las del informe)
+--  CONSULTAS
 -- ============================================================
 
 -- Consulta 1
@@ -34,8 +34,7 @@ ORDER BY p.fecha_compra;
 
 -- Consulta 2
 -- KPI: días promedio desde la compra hasta la entrega al transporte, y
--- cuántos cumplen la meta de 2 días (48 horas). Los despachados tienen que
--- sumar lo mismo que en la consulta 5 (por mes)
+-- cuántos cumplen la meta de 2 días (48 horas)
 SELECT   COUNT(*) AS despachados,
          ROUND(AVG(TIMESTAMPDIFF(HOUR, p.fecha_compra, d.fecha_entrega_transporte)) / 24.0, 1) AS dias_promedio,
          SUM(CASE WHEN TIMESTAMPDIFF(HOUR, p.fecha_compra, d.fecha_entrega_transporte) <= 48
@@ -53,5 +52,3 @@ SELECT   ROUND(AVG(TIMESTAMPDIFF(HOUR, p.fecha_compra, d.fecha_preparacion)), 1)
 FROM     pedido   p
 JOIN     despacho d ON p.id_pedido = d.id_pedido
 WHERE    p.estado_pedido = 'Despachado';
-
-
