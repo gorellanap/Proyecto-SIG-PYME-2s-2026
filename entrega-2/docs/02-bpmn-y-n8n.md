@@ -32,6 +32,6 @@ En el BPMN de la Entrega 1, la preparación del pedido aparecía antes de identi
 
 | Tarea BPMN *to-be* | Nodo / Acción en n8n | Tabla(s) en MySQL (`ruta`) |
 | :--- | :--- | :--- |
-| **Registro automático del pedido** | *(Completar nodo)* | `cliente`, `pedido`, `detalle_pedido` |
-| **Detección y alerta de retraso (>24h)** | *(Completar nodo)* | `pedido`, `cliente` |
-| **Gestionar preparación y despacho** | *(Completar nodo)* | `pedido`, `despacho` |
+| **Registro automático del pedido** | Guardar cliente → Registrar pedido web → Obtener número de pedido → Consolidar productos del pedido. | `cliente`, `pedido`, `detalle_pedido` |
+| **Detección y alerta de retraso (>24h)** | Flujo 03: el disparador programado inicia la consulta SQL de pedidos pendientes. El flujo evalúa el tiempo transcurrido y genera una alerta según el umbral configurado.| `pedido`, `cliente` |
+| **Gestionar preparación y despacho** | Abrir registro de despacho. El nodo crea el registro asociado al pedido para dar seguimiento al despacho. | `pedido`, `despacho` |
