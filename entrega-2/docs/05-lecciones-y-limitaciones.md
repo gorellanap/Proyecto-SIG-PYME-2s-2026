@@ -15,3 +15,10 @@
 * **Datos sintéticos:** Los registros de `seed.sql` simulan fielmente la operación levantada en E1, pero no corresponden a transacciones productivas en vivo.
 * **Medición post-implementación:** El impacto real en la reducción de 6 a $\le 2$ días y el alza en la tasa de recompra requiere seguimiento tras poner el sistema en marcha.
 * **Actualización de estados:** El paso a `'En preparacion'` y el registro de `codigo_seguimiento` dependen de que el responsable actualice el estado oportunamente.
+En la automatización con n8n, la notificación por correo al responsable de preparación quedó armada en los flujos, pero desactivada, porque no alcanzamos a conectar una cuenta de Gmail. Para hacerlo, Google pide crear un proyecto en Google Cloud con credenciales propias. Por eso, en esta versión el aviso se ve en la respuesta del sistema, que entrega la fecha límite de despacho, y en la lista de pedidos atrasados que genera el flujo 3, pero no llega como correo.
+
+Además, la página web de Ruta no está conectada a n8n, porque modificarla estaba fuera del alcance del proyecto. En las pruebas, los pedidos se enviaron manualmente al sistema, simulando lo que haría la web.
+
+Otra limitación es que n8n está instalado en un solo computador. Si ese computador está apagado, los pedidos no se registran y no se revisan los atrasos. Para usarlo en la empresa habría que dejarlo en un equipo que esté siempre encendido.
+
+Por último, como los datos de prueba son ficticios, todavía no podemos medir si el sistema realmente baja el tiempo de despacho de 6 a 2 días. Eso solo se podría comprobar usándolo con pedidos reales durante algunas semanas.
