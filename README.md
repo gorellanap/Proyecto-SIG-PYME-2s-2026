@@ -1,4 +1,4 @@
-**# Proyecto SIG PYME: Ruta Snack SpA (*Papas Fritas RUTA*)
+Proyecto SIG PYME: Ruta Snack SpA (*Papas Fritas RUTA*)
 
 **Asignatura:** Sistemas de Información para la Gestión (ICN-292) — Paralelo 100  
 **Institución:** Universidad Técnica Federico Santa María — Departamento de Industrias  
