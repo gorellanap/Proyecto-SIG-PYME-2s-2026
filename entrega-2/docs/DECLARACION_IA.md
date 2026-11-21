@@ -5,5 +5,5 @@ En cumplimiento con las normas de integridad académica de **ICN-292**, el grupo
 | Sección / Entregable | Herramienta | Uso Específico y Validación del Equipo |
 | :--- | :--- | :--- |
 | **Modelo ER 3FN y Diccionario (`03-modelo-datos.md`)** | Gemini | Apoyo para validar el cumplimiento de 1FN, 2FN y 3FN (eliminación de `monto_total`, `region` y `stock_disponible`) y estructurar el diccionario de datos. Revisado y redactado por el equipo. |
-| **Base de Datos y Consultas (`db/`)** | Claude | * Validación de sintaxis SQL y ayuda a generación de registros ficticios coherentes para `seed.sql`, probados en MySQL Workbench).* |
-| **Automatización (`n8n/`) y Redacción** | Claude | *(Ej. Revisión de nodos JSON y estructura documental).* |
+| **Base de Datos y Consultas (`db/`)** | Claude | Validación de sintaxis SQL y ayuda a generación de registros ficticios coherentes para `seed.sql`, probados en MySQL Workbench).|
+| **Automatización (`n8n/`) y Redacción** | Claude | Revisión de nodos JSON y estructura documental).
