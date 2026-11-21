@@ -22,7 +22,7 @@ En el BPMN de la Entrega 1, la preparación del pedido aparecía antes de identi
 ## 3. Automatización con n8n
 La automatización tiene **3 flujos**. Los flujos exportados en JSON y la guía completa (instalación, credenciales y pruebas)
 
-![Flujo n8n](../assets/flujo-n8n.png)
+![Flujo n8n](../assets/Flujo-n8n.png)
 ### Flujo 01 · Registrar y consolidar pedidos web (`01-registrar-pedido-web.json`)
 1. **Disparador — Webhook *Recibir solicitud*:** la página web envía el pedido (cliente, fecha de compra, sabores) a `POST /webhook/ruta/pedido-web`. En la demo se envía con `curl`, porque modificar la web está fuera del alcance.
 2. **Code *Revisar pedido*:** revisa el RUT (dígito verificador), que estén todos los datos del cliente (son `NOT NULL` en `cliente`) y que los productos sean válidos.
