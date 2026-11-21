@@ -1,12 +1,8 @@
 # BPMN TO-BE Final y Automatización en n8n
 
-> **Responsable:** [Nombre integrante encargado de BPMN / n8n]  
-> **Corresponde a:** Sección 4 del Informe E2
-
 ---
 
 ## 1. Diagrama BPMN TO-BE Final
-*(Subir imagen legible a `entrega-2/assets/bpmn-tobe-final.png`)*
 
 ![BPMN TO-BE Final](../assets/bpmn-tobe-final.png)
 
