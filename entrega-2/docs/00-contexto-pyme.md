@@ -1,6 +1,5 @@
 # Contexto de la PYME y Problema de Negocio — Ruta Snack SpA
 
-> **Responsable:** [Nombre integrante]  
 > **Corresponde a:** Secciones 1 y 2 del Informe E2
 
 ---
