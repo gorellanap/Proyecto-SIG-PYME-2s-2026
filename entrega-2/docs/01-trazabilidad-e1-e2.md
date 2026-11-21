@@ -1,6 +1,5 @@
 # Trazabilidad de Cambios (Entrega 1 → Entrega 2)
 
-> **Responsable:** [Nombre integrante]  
 > **Corresponde a:** Sección 3 del Informe E2 y `CHANGELOG.md`
 
 ---
